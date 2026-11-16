@@ -1,5 +1,6 @@
 #include "prx/libc/include/Api.hpp"
 #include "prx/libc/include/exceptions/Runtime.hpp"
+#include <cerrno>
 #include <cstddef>
 #ifndef _UNWIND_H
 #define _UNWIND_H
@@ -137,3 +138,15 @@ int APS5_VABI _ZSt13_Execute_onceRSt9once_flagPFiPvS1_PS1_ES1__nid_postfix(
 }
 
 }
+
+#ifdef __APPLE__
+namespace {
+
+[[gnu::constructor]] void ResolveEmptyStringStorage() {
+    const int savedErrno = errno;
+    { const std::runtime_error probe("libc"); }
+    errno = savedErrno;
+}
+
+}
+#endif
